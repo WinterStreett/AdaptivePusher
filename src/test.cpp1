@@ -1,0 +1,47 @@
+#include <iostream>
+#include <string>
+#include <curl/curl.h>
+
+int main() {
+    // 初始化数据
+    const std::string vmUrl = "http://192.168.88.140:8428/api/v1/import/prometheus";
+    const std::string prometheusData = R"(
+foo{bar="baz"} 246 1733498911
+bar{label1="value1"} 981 1733498911
+)";
+
+    // 初始化 libcurl
+    CURL* curl = curl_easy_init();
+    if (!curl) {
+        std::cerr << "Failed to initialize CURL" << std::endl;
+        return 1;
+    }
+
+    // 设置目标 URL
+    curl_easy_setopt(curl, CURLOPT_URL, vmUrl.c_str());
+
+    // 设置 HTTP POST 方法
+    curl_easy_setopt(curl, CURLOPT_POST, 1L);
+
+    // 设置数据内容
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, prometheusData.c_str());
+
+    // 设置请求头
+    struct curl_slist* headers = nullptr;
+    headers = curl_slist_append(headers, "Content-Type: text/plain");
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+    // 执行请求
+    CURLcode res = curl_easy_perform(curl);
+    if (res != CURLE_OK) {
+        std::cerr << "CURL request failed: " << curl_easy_strerror(res) << std::endl;
+    } else {
+        std::cout << "Data successfully pushed to VictoriaMetrics!" << std::endl;
+    }
+
+    // 清理资源
+    curl_easy_cleanup(curl);
+    curl_slist_free_all(headers);
+
+    return 0;
+}
