@@ -7,7 +7,7 @@ private:
     static size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* output);
     std::string ebpfExporterUrl;
     CURL* curl;
-    
+    std::string buff;
     
 public:
     void collect();

@@ -28,7 +28,7 @@ Collector::Collector(const std::string& url)
     // curl_easy_setopt(curl, CURLOPT_URL, "http://localhost:9435/metrics");
 
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &metricsInMemory);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buff);
     curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);
 }
 
@@ -49,6 +49,8 @@ void Collector::collect()
         std::string error(curl_easy_strerror(res));
         throw std::runtime_error("CURL request failed: " + error);
     } else {
+        metricsInMemory.append(buff);
+        buff.clear();
         std::cout << "Metrics fetched successfully:" << std::endl;
         std::cout << metricsInMemory.size() << std::endl; // 输出数据
     }
