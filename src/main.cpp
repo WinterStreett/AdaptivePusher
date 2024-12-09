@@ -13,13 +13,12 @@ int main(){
     vmUrl = "http://192.168.88.140:8428/api/v1/import/prometheus";
     Collector* collector= new Collector(exporterUrl);
     Pusher* pusher = new Pusher(vmUrl);
+
     std::thread push_timer_thread(&Pusher::push_timer,pusher);
     std::thread collect_timer_thread(&Collector::collect_timer, collector);
     collect_timer_thread.join();
     push_timer_thread.join();
 
-    // collector->collect();
-    // pusher->push();
     return 0;
 }
 

@@ -28,18 +28,19 @@ void Pusher::push(){
     if(metricsInMemory.size()==0)//如果数据收集出现问题，则不发起推送请求
         return;
     std::lock_guard<std::mutex> lock(metricsInMemoryMtx);
-    // metricsInMemory = R"(test{bar="baz"} 100 1733498911)";
+    //todo: 推送数据时，要先后读取文件和metricsInMemory的内容，合并后推送
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, metricsInMemory.c_str());
         // 执行请求
     CURLcode res = curl_easy_perform(curl);
     if (res != CURLE_OK) {
-        // std::cerr << "CURL request failed: " << curl_easy_strerror(res) << std::endl;
+        //todo: 当推送失败时，将metricsInMemory的内容存入文件
+        //      最后清空metricsInMemory的内容
         std::string error(curl_easy_strerror(res));
         throw std::runtime_error("CURL request failed: " + error);
     } else {
         std::cout << "Data successfully pushed to VictoriaMetrics!" << std::endl;
+        metricsInMemory.clear();
     }
-    metricsInMemory.clear();
 }
 
 void Pusher::push_timer(){

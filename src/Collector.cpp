@@ -5,6 +5,33 @@
 #include<chrono>
 #include<thread>
 #include <mutex>
+#include <regex>
+#include <ctime>
+
+//一些辅助函数
+std::string getUnixTimestamp() {
+    auto now = std::chrono::system_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch());
+    return std::to_string(duration.count());
+}
+
+std::string addTimestampToMetrics(const std::string& rawMetrics) {
+    std::string result;
+    std::istringstream input(rawMetrics);
+    std::string line;
+    std::string timestamp = getUnixTimestamp();
+
+    while (std::getline(input, line)) {
+        if (line.empty() || line[0] == '#') {
+            // 忽略注释行和空行
+            result.append(line).append("\n");
+            continue;
+        }
+        line.append(" ").append(timestamp);
+        result.append(line).append("\n");
+    }
+    return result;
+}
 
 // 回调函数，用于将拉取到的数据写入 std::string
 size_t Collector::WriteCallback(void* contents, size_t size, size_t nmemb, std::string* output)
@@ -49,10 +76,11 @@ void Collector::collect()
         std::string error(curl_easy_strerror(res));
         throw std::runtime_error("CURL request failed: " + error);
     } else {
+        buff = addTimestampToMetrics(buff);
         metricsInMemory.append(buff);
         buff.clear();
         std::cout << "Metrics fetched successfully:" << std::endl;
-        std::cout << metricsInMemory.size() << std::endl; // 输出数据
+        // std::cout << metricsInMemory << std::endl; // 输出数据
     }
 }
 

@@ -1,47 +1,54 @@
 #include <iostream>
 #include <string>
-#include <curl/curl.h>
+#include <fstream>
+#include <regex>
+#include <ctime>
+#include<chrono>
+std::string getUnixTimestamp() {
+    auto now = std::chrono::system_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch());
+    return std::to_string(duration.count());
+}
 
+std::string addTimestampToMetrics(const std::string& rawMetrics) {
+    std::string result;
+    std::istringstream input(rawMetrics);
+    std::string line;
+
+    while (std::getline(input, line)) {
+        if (line.empty() || line[0] == '#') {
+            // 忽略注释行和空行
+            result.append(line).append("\n");
+            continue;
+        }
+        line.append(" ").append(getUnixTimestamp());
+        result.append(line).append("\n");
+    }
+    return result;
+}
 int main() {
-    // 初始化数据
-    const std::string vmUrl = "http://192.168.88.140:8428/api/v1/import/prometheus";
-    const std::string prometheusData = R"(
-foo{bar="baz"} 246 1733498911
-bar{label1="value1"} 981 1733498911
+    // 模拟从 node_exporter 获取的原始数据
+    std::string rawMetrics = R"(# HELP node_cpu_seconds_total Seconds the CPUs spent in each mode.
+# TYPE node_cpu_seconds_total counter
+node_cpu_seconds_total{cpu="0",mode="user"} 12345.67
+node_cpu_seconds_total{cpu="0",mode="system"} 2345.67
 )";
 
-    // 初始化 libcurl
-    CURL* curl = curl_easy_init();
-    if (!curl) {
-        std::cerr << "Failed to initialize CURL" << std::endl;
-        return 1;
-    }
+    std::string updatedMetrics = addTimestampToMetrics(rawMetrics);
+        // 输出处理后的数据
+    std::cout << updatedMetrics;
+    // std::cout<<std::to_string(getUnixTimestamp())<<std::endl;
 
-    // 设置目标 URL
-    curl_easy_setopt(curl, CURLOPT_URL, vmUrl.c_str());
-
-    // 设置 HTTP POST 方法
-    curl_easy_setopt(curl, CURLOPT_POST, 1L);
-
-    // 设置数据内容
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, prometheusData.c_str());
-
-    // 设置请求头
-    struct curl_slist* headers = nullptr;
-    headers = curl_slist_append(headers, "Content-Type: text/plain");
-    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-
-    // 执行请求
-    CURLcode res = curl_easy_perform(curl);
-    if (res != CURLE_OK) {
-        std::cerr << "CURL request failed: " << curl_easy_strerror(res) << std::endl;
-    } else {
-        std::cout << "Data successfully pushed to VictoriaMetrics!" << std::endl;
-    }
-
-    // 清理资源
-    curl_easy_cleanup(curl);
-    curl_slist_free_all(headers);
+    // std::string content = R"(123)";
+    // std::fstream file;
+    // // file.open("test.txt", std::ios::in | std::ios::app);
+    // file.open("test.txt",std::ios::in | std::ios::out | std::ios::trunc);
+    // if (!file.is_open()) {
+    //     std::cerr << "Failed to open the file." << std::endl;
+    //     return 1;
+    // }
+    // file << content;
+    // file.close();
 
     return 0;
 }
