@@ -12,7 +12,7 @@ int main(){
     periodOfPushMetrices = 10;
     exporterUrl = "http://localhost:9435/metrics";
     vmUrl = "http://192.168.88.140:8428/api/v1/import/prometheus";
-    fileSaveMetricsName = "data.txt";
+    fileSaveMetricsName = "bin/data.txt";
     isFileSaveMetricsEmpty = true;
 
 
