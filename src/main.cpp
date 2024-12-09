@@ -5,12 +5,17 @@
 #include<thread>
 #include<time.h>
 #include"../include/global.h"
+#include<fstream>
 
 int main(){
     periodOfCollectMetrics = 1;
     periodOfPushMetrices = 10;
     exporterUrl = "http://localhost:9435/metrics";
     vmUrl = "http://192.168.88.140:8428/api/v1/import/prometheus";
+    fileSaveMetricsName = "data.txt";
+    isFileSaveMetricsEmpty = true;
+
+
     Collector* collector= new Collector(exporterUrl);
     Pusher* pusher = new Pusher(vmUrl);
 

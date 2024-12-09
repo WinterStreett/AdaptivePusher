@@ -27,28 +27,28 @@ std::string addTimestampToMetrics(const std::string& rawMetrics) {
     return result;
 }
 int main() {
-    // 模拟从 node_exporter 获取的原始数据
-    std::string rawMetrics = R"(# HELP node_cpu_seconds_total Seconds the CPUs spent in each mode.
-# TYPE node_cpu_seconds_total counter
-node_cpu_seconds_total{cpu="0",mode="user"} 12345.67
-node_cpu_seconds_total{cpu="0",mode="system"} 2345.67
-)";
+//     // 模拟从 node_exporter 获取的原始数据
+//     std::string rawMetrics = R"(# HELP node_cpu_seconds_total Seconds the CPUs spent in each mode.
+// # TYPE node_cpu_seconds_total counter
+// node_cpu_seconds_total{cpu="0",mode="user"} 12345.67
+// node_cpu_seconds_total{cpu="0",mode="system"} 2345.67
+// )";
 
-    std::string updatedMetrics = addTimestampToMetrics(rawMetrics);
-        // 输出处理后的数据
-    std::cout << updatedMetrics;
+//     std::string updatedMetrics = addTimestampToMetrics(rawMetrics);
+//         // 输出处理后的数据
+//     std::cout << updatedMetrics;
     // std::cout<<std::to_string(getUnixTimestamp())<<std::endl;
 
-    // std::string content = R"(123)";
-    // std::fstream file;
-    // // file.open("test.txt", std::ios::in | std::ios::app);
-    // file.open("test.txt",std::ios::in | std::ios::out | std::ios::trunc);
-    // if (!file.is_open()) {
-    //     std::cerr << "Failed to open the file." << std::endl;
-    //     return 1;
-    // }
-    // file << content;
-    // file.close();
+    std::string content = R"(456)";
+    std::fstream file;
+    // file.open("test.txt", std::ios::in | std::ios::app);
+    file.open("test.txt",std::ios::out | std::ios::trunc);
+    if (!file.is_open()) {
+        std::cerr << "Failed to open the file." << std::endl;
+        return 1;
+    }
+    file << content;
+    file.close();
 
     return 0;
 }

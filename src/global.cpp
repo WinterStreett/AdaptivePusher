@@ -7,3 +7,7 @@ std::string exporterUrl;
 std::string vmUrl;
 int periodOfCollectMetrics;
 int periodOfPushMetrices;
+
+std::fstream fileSaveMetrics;
+bool isFileSaveMetricsEmpty;
+std::string fileSaveMetricsName;

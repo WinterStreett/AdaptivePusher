@@ -3,6 +3,7 @@
 #include<curl/curl.h>
 #include<iostream>
 #include<thread>
+#include<fstream>
 
 Pusher::Pusher(const std::string& url){
     curl = curl_easy_init();
@@ -28,18 +29,41 @@ void Pusher::push(){
     if(metricsInMemory.size()==0)//如果数据收集出现问题，则不发起推送请求
         return;
     std::lock_guard<std::mutex> lock(metricsInMemoryMtx);
-    //todo: 推送数据时，要先后读取文件和metricsInMemory的内容，合并后推送
+    //   推送数据时，要先后读取文件和metricsInMemory的内容，合并后推送
+    if(!isFileSaveMetricsEmpty)
+    {
+        fileSaveMetrics.open(fileSaveMetricsName,std::ios::in);
+        if (!fileSaveMetrics.is_open()) {
+            std::cerr << "fileSaveMetrics: Failed to open the file." << std::endl;
+        }
+        else
+        {
+            metricsInMemory += std::string((std::istreambuf_iterator<char>(fileSaveMetrics)), std::istreambuf_iterator<char>());
+        }
+        fileSaveMetrics.close();
+    }
+
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, metricsInMemory.c_str());
         // 执行请求
     CURLcode res = curl_easy_perform(curl);
     if (res != CURLE_OK) {
-        //todo: 当推送失败时，将metricsInMemory的内容存入文件
+        //      当推送失败时，将metricsInMemory的内容存入文件
         //      最后清空metricsInMemory的内容
+        fileSaveMetrics.open(fileSaveMetricsName,std::ios::in | std::ios::out | std::ios::trunc);
+        if (!fileSaveMetrics.is_open()) {
+            metricsInMemory.clear();
+            throw std::runtime_error("push(): Failed to open the file.");
+        }
+        fileSaveMetrics << metricsInMemory;
+        fileSaveMetrics.close();
+        metricsInMemory.clear();
+        isFileSaveMetricsEmpty = false;
         std::string error(curl_easy_strerror(res));
         throw std::runtime_error("CURL request failed: " + error);
     } else {
         std::cout << "Data successfully pushed to VictoriaMetrics!" << std::endl;
         metricsInMemory.clear();
+        isFileSaveMetricsEmpty = true;
     }
 }
 
