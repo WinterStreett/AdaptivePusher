@@ -1,4 +1,5 @@
 #include"../include/Pusher.h"
+#include"../include/File.h"
 #include"../include/global.h"
 #include<curl/curl.h>
 #include<iostream>
@@ -6,43 +7,9 @@
 #include<fstream>
 
 //一些辅助函数
-void readBinaryFileToString(const std::string& fileName, std::string& buffer)
-{
-    std::ifstream file;
-    file.open(fileName,std::ios::binary | std::ios::in);
-    if (!file.is_open()) {
-        throw std::runtime_error("fun: readBinaryFileToString: Failed to open the file for reading.");
-    }
-    size_t length;
-    file.read(reinterpret_cast<char*>(&length), sizeof(length));
-    if (length > MAX_FILE_SIZE) {
-        throw std::runtime_error("fun: readBinaryFileToString: File length exceeds allowed limit.");
-    }
-    buffer.resize(length, '\0');    // 为字符串分配足够的空间
-                   
-    file.read(&buffer[0], length);             // 将文件内容读取到字符串中
-    file.close();
-}
 
-void writeStringToBinaryFile(const std::string& fileName, std::string& data, const int& flag)
-{
-    std::ofstream file;
-    if(flag == 0)//flag=0: 默认文件为空，清空内容再写入
-    {
-        file.open(fileName,std::ios::binary | std::ios::out);
-    }
-    else//默认情况下以追加模式写入
-    {
-        file.open(fileName,std::ios::binary | std::ios::out | std::ios::app);
-    }
-    if (!file.is_open()) {
-        throw std::runtime_error("Failed to open the file for writing.");
-    }
-    size_t length = data.size();
-    file.write(reinterpret_cast<const char*>(&length), sizeof(length));
-    file.write(data.data(), data.size());
-    file.close();
-}
+
+
 
 
 Pusher::Pusher(const std::string& url){
@@ -72,7 +39,7 @@ void Pusher::push(){
     std::lock_guard<std::mutex> lock(metricsInMemoryMtx);
 
     //   推送数据时，要先后读取文件，和metricsInMemory的内容合并后推送
-    if(!isFileSaveMetricsEmpty)
+    if(fileSaveMetricSize != 0)
     {
         try{   
             std::string data;
@@ -92,7 +59,6 @@ void Pusher::push(){
         //      最后清空metricsInMemory的内容
         try{
             writeStringToBinaryFile(fileSaveMetricsName,metricsInMemory,0);
-            isFileSaveMetricsEmpty = false;
         }
         catch (const std::exception& e)
         {
@@ -105,7 +71,6 @@ void Pusher::push(){
     } else {
         std::cout << "Data successfully pushed to VictoriaMetrics!" << std::endl;
         metricsInMemory.clear();
-        isFileSaveMetricsEmpty = true;
     }
 }
 

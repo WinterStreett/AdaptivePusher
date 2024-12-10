@@ -24,7 +24,7 @@ std::string addTimestampToMetrics(const std::string& rawMetrics) {
     while (std::getline(input, line)) {
         if (line.empty() || line[0] == '#') {
             // 忽略注释行和空行
-            result.append(line).append("\n");
+            // result.append(line).append("\n");
             continue;
         }
         line.append(" ").append(timestamp);
@@ -79,7 +79,7 @@ void Collector::collect()
         buff = addTimestampToMetrics(buff);
         metricsInMemory.append(buff);
         buff.clear();
-        std::cout << "Metrics fetched successfully:" << std::endl;
+        // std::cout << "Metrics fetched successfully:" << std::endl;
         // std::cout << metricsInMemory << std::endl; // 输出数据
     }
 }
