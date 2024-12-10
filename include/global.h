@@ -9,6 +9,7 @@ extern int periodOfCollectMetrics;
 extern int periodOfPushMetrices;
 extern std::string exporterUrl;
 extern std::string vmUrl;
-extern std::fstream fileSaveMetrics;
+
 extern bool isFileSaveMetricsEmpty;
 extern std::string fileSaveMetricsName;
+extern size_t MAX_FILE_SIZE;

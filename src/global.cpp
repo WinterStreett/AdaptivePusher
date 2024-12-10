@@ -8,6 +8,6 @@ std::string vmUrl;
 int periodOfCollectMetrics;
 int periodOfPushMetrices;
 
-std::fstream fileSaveMetrics;
 bool isFileSaveMetricsEmpty;
 std::string fileSaveMetricsName;
+size_t MAX_FILE_SIZE;

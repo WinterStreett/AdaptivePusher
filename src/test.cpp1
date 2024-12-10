@@ -26,29 +26,43 @@ std::string addTimestampToMetrics(const std::string& rawMetrics) {
     }
     return result;
 }
-int main() {
-//     // 模拟从 node_exporter 获取的原始数据
-//     std::string rawMetrics = R"(# HELP node_cpu_seconds_total Seconds the CPUs spent in each mode.
-// # TYPE node_cpu_seconds_total counter
-// node_cpu_seconds_total{cpu="0",mode="user"} 12345.67
-// node_cpu_seconds_total{cpu="0",mode="system"} 2345.67
-// )";
 
-//     std::string updatedMetrics = addTimestampToMetrics(rawMetrics);
-//         // 输出处理后的数据
-//     std::cout << updatedMetrics;
-    // std::cout<<std::to_string(getUnixTimestamp())<<std::endl;
-
-    std::string content = R"(456)";
-    std::fstream file;
-    // file.open("test.txt", std::ios::in | std::ios::app);
-    file.open("test.txt",std::ios::out | std::ios::trunc);
+void readBinaryFileToString(const std::string& fileName, std::string& buffer)
+{
+    std::ifstream file;
+    file.open(fileName,std::ios::binary | std::ios::in);
     if (!file.is_open()) {
-        std::cerr << "Failed to open the file." << std::endl;
-        return 1;
+        throw std::runtime_error("fun: readBinaryFileToString: Failed to open the file for reading.");
     }
-    file << content;
-    file.close();
+    size_t length;
+    file.read(reinterpret_cast<char*>(&length), sizeof(length));
 
+    buffer.resize(length, '\0');    // 为字符串分配足够的空间
+                   
+    file.read(&buffer[0], length);             // 将文件内容读取到字符串中
+    file.close();
+}
+
+void writeStringToBinaryFile(const std::string& fileName, std::string& data)
+{
+    std::ofstream file;
+
+    file.open(fileName,std::ios::binary | std::ios::out);
+    if (!file.is_open()) {
+        throw std::runtime_error("Failed to open the file for writing.");
+    }
+    size_t length = data.size();
+    file.write(reinterpret_cast<const char*>(&length), sizeof(length));
+    file.write(data.data(), data.size());
+    file.close();
+}
+
+int main() {
+    std::string fileName = "../bin/data.bin";
+    std::string data = R"(test_metric{label="test"} 123 100200030)";
+    writeStringToBinaryFile(fileName,data);
+    std::string buffer;
+    readBinaryFileToString(fileName,buffer);
+    std::cout<<buffer<<std::endl;
     return 0;
 }

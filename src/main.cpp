@@ -12,9 +12,10 @@ int main(){
     periodOfPushMetrices = 10;
     exporterUrl = "http://localhost:9435/metrics";
     vmUrl = "http://192.168.88.140:8428/api/v1/import/prometheus";
-    fileSaveMetricsName = "bin/data.txt";
-    isFileSaveMetricsEmpty = true;
+    fileSaveMetricsName = "../bin/data.bin";
 
+    isFileSaveMetricsEmpty = true;
+    MAX_FILE_SIZE = 1024 * 1024 * 50;//最大文件大小：50MB
 
     Collector* collector= new Collector(exporterUrl);
     Pusher* pusher = new Pusher(vmUrl);
