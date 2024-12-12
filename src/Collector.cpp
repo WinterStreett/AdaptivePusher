@@ -15,7 +15,34 @@ std::string getUnixTimestamp() {
     return std::to_string(duration.count());
 }
 
-std::string addTimestampToMetrics(const std::string& rawMetrics) {
+//给数据加上自定义标签
+std::string addLabel(const std::string& original, const std::string& newLabelKey, const std::string& newLabelValue) {
+    // 找到标签部分的开始位置
+    size_t start = original.find('{');
+    size_t end = original.find('}', start);
+
+    // 如果找到了标签部分，插入新标签
+    if (start != std::string::npos && end != std::string::npos) {
+        std::string newLabel = newLabelKey + "=\"" + newLabelValue + "\"";
+        std::string updated = original;
+        updated.insert(end, "," + newLabel);
+        return updated;
+    }
+
+    // 如果没有标签部分，则在数据名后添加整个标签
+    size_t spacePos = original.find(' '); // 查找第一个空格
+    if (spacePos != std::string::npos) {
+        // 在空格前插入标签
+        return original.substr(0, spacePos) + "{" + newLabelKey + "=\"" + newLabelValue + "\"}" +
+               original.substr(spacePos);
+    }
+
+    // 如果没有空格，则假设原始数据只有名字
+    return original + "{" + newLabelKey + "=\"" + newLabelValue + "\"}";
+}
+
+
+std::string addInfoToMetrics(const std::string& rawMetrics) {
     std::string result;
     std::istringstream input(rawMetrics);
     std::string line;
@@ -27,8 +54,9 @@ std::string addTimestampToMetrics(const std::string& rawMetrics) {
             // result.append(line).append("\n");
             continue;
         }
+        // line = addLabel(line,"source",hostInfo);
         line.append(" ").append(timestamp);
-        result.append(line).append("\n");
+        result.append(addLabel(line,"source",hostInfo)).append("\n");
     }
     return result;
 }
@@ -76,7 +104,7 @@ void Collector::collect()
         std::string error(curl_easy_strerror(res));
         throw std::runtime_error("CURL request failed: " + error);
     } else {
-        buff = addTimestampToMetrics(buff);
+        buff = addInfoToMetrics(buff);
         metricsInMemory.append(buff);
         buff.clear();
         // std::cout << "Metrics fetched successfully:" << std::endl;

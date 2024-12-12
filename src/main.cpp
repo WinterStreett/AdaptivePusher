@@ -13,8 +13,10 @@ int main(){
     exporterUrl = "http://localhost:9435/metrics";
     vmUrl = "http://192.168.88.140:8428/api/v1/import/prometheus";
     fileSaveMetricsName = "../bin/data.bin";
+    hostInfo = "192.168.88.139";
 
     MAX_FILE_SIZE = 1024 * 1024 * 2;//最大文件大小：5MB
+    
     fileSaveMetricSize = 0;
 
     Collector* collector= new Collector(exporterUrl);

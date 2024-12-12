@@ -79,10 +79,33 @@ size_t getFileSize1(const char *fileName) {
 }
 
 
+std::string addLabel(const std::string& original, const std::string& newLabelKey, const std::string& newLabelValue) {
+    // 找到标签部分的开始位置
+    size_t start = original.find('{');
+    size_t end = original.find('}', start);
 
+    // 如果找到了标签部分，插入新标签
+    if (start != std::string::npos && end != std::string::npos) {
+        std::string newLabel = newLabelKey + "=\"" + newLabelValue + "\"";
+        std::string updated = original;
+        updated.insert(end, "," + newLabel);
+        return updated;
+    }
+
+    // 如果没有标签部分，则在数据名后添加整个标签
+    size_t spacePos = original.find(' '); // 查找第一个空格
+    if (spacePos != std::string::npos) {
+        // 在空格前插入标签
+        return original.substr(0, spacePos) + "{" + newLabelKey + "=\"" + newLabelValue + "\"}" +
+               original.substr(spacePos);
+    }
+
+    // 如果没有空格，则假设原始数据只有名字
+    return original + "{" + newLabelKey + "=\"" + newLabelValue + "\"}";
+}
 
 int main() {
-    std::string fileName = "../bin/data.bin";
-    std::cout<<getFileSize1(fileName.c_str())<<std::endl;
+    std::string data = R"(test_metrics)";
+    std::cout<< addLabel(data,"label2","def")<<std::endl;
     return 0;
 }

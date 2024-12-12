@@ -13,3 +13,4 @@ extern std::string vmUrl;//远程数据库的ip
 extern std::string fileSaveMetricsName;//临时文件的文件名
 extern size_t MAX_FILE_SIZE;//临时文件的最大字节数
 extern size_t fileSaveMetricSize;//临时文件中数据的长度
+extern std::string hostInfo;//标识数据来源的信息，注意不同数据源不要同名
