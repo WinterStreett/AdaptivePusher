@@ -42,7 +42,7 @@ std::string addLabel(const std::string& original, const std::string& newLabelKey
 }
 
 
-std::string addInfoToMetrics(const std::string& rawMetrics) {
+std::string processMetrics(const std::string& rawMetrics) {
     std::string result;
     std::istringstream input(rawMetrics);
     std::string line;
@@ -104,7 +104,7 @@ void Collector::collect()
         std::string error(curl_easy_strerror(res));
         throw std::runtime_error("CURL request failed: " + error);
     } else {
-        buff = addInfoToMetrics(buff);
+        buff = processMetrics(buff);
         metricsInMemory.append(buff);
         buff.clear();
         // std::cout << "Metrics fetched successfully:" << std::endl;
