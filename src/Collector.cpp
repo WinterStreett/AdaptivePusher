@@ -105,7 +105,12 @@ void Collector::collect()
         throw std::runtime_error("CURL request failed: " + error);
     } else {
         buff = processMetrics(buff);
-        metricsInMemory.append(buff);
+        // metricsInMemory.append(buff);
+        
+        //todo: 采样算法
+        metricsInMemory.push_back(buff);
+
+
         buff.clear();
         // std::cout << "Metrics fetched successfully:" << std::endl;
         // std::cout << metricsInMemory << std::endl; // 输出数据

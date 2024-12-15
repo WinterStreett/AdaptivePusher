@@ -2,8 +2,9 @@
 #include<string>
 #include<mutex>
 #include<fstream>
+#include<vector>
 
-extern std::string metricsInMemory;//指标数据保存在内存中的容器
+extern std::vector<std::string> metricsInMemory;//指标数据保存在内存中的容器
 extern std::mutex metricsInMemoryMtx;//metricsInMemory的独占锁，访问数据前先获取锁
 extern int periodOfCollectMetrics;//收集数据的时间间隔
 extern int periodOfPushMetrices;//推送数据的时间间隔

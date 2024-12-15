@@ -5,12 +5,9 @@
 #include<iostream>
 #include<thread>
 #include<fstream>
+#include <sstream>
 
 //一些辅助函数
-
-
-
-
 
 Pusher::Pusher(const std::string& url){
     curl = curl_easy_init();
@@ -38,27 +35,33 @@ void Pusher::push(){
     //申请metricsInMemory的独占权
     std::lock_guard<std::mutex> lock(metricsInMemoryMtx);
 
+    std::ostringstream oss;
+    for(const auto& str: metricsInMemory)
+    {
+        oss << str;
+    }
+    std::string metricsInMemoryStr = oss.str();
     //   推送数据时，要先后读取文件，和metricsInMemory的内容合并后推送
     if(fileSaveMetricSize != 0)
     {
         try{   
             std::string data;
             readBinaryFileToString(fileSaveMetricsName,data);
-            metricsInMemory += std::move(data);
+            metricsInMemoryStr += std::move(data);
         }
         catch (const std::exception& e)
         {
             std::cerr << "Exception caught in push(): " << e.what() << std::endl;
         }
     }
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, metricsInMemory.c_str());
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, metricsInMemoryStr.c_str());
         // 执行请求
     CURLcode res = curl_easy_perform(curl);
     if (res != CURLE_OK) {
         //      当推送失败时，将metricsInMemory的内容存入文件
         //      最后清空metricsInMemory的内容
         try{
-            writeStringToBinaryFile(fileSaveMetricsName,metricsInMemory,0);
+            writeStringToBinaryFile(fileSaveMetricsName,metricsInMemoryStr,0);
         }
         catch (const std::exception& e)
         {

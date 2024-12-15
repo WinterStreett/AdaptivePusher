@@ -1,6 +1,6 @@
 #include"../include/global.h"
 
-std::string metricsInMemory;
+std::vector<std::string> metricsInMemory;
 std::mutex metricsInMemoryMtx;
 
 std::string exporterUrl;
