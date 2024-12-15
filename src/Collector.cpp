@@ -106,14 +106,20 @@ void Collector::collect()
     } else {
         buff = processMetrics(buff);
         // metricsInMemory.append(buff);
-        
+
         //todo: 采样算法
-        metricsInMemory.push_back(buff);
-
-
+        if(RSIndex < reservoirSize)
+            metricsInMemory.push_back(buff);
+        else{
+            int j = rand() % (RSIndex + 1);
+            if(j < reservoirSize)
+                metricsInMemory[j] = buff;
+        }
+        RSIndex++;
+        std::cout<<"reservoirSize: "<< reservoirSize << " RSIndex: "<< RSIndex<<std::endl;
         buff.clear();
         // std::cout << "Metrics fetched successfully:" << std::endl;
-        // std::cout << metricsInMemory << std::endl; // 输出数据
+        std::cout << metricsInMemory.size() << std::endl; // 输出数据
     }
 }
 

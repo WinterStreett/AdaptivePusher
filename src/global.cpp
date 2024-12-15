@@ -13,3 +13,7 @@ size_t MAX_FILE_SIZE;
 size_t fileSaveMetricSize;
 
 std::string hostInfo;
+
+int reservoirSize;
+int RSIndex;
+double samplingRatio;

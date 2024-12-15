@@ -69,11 +69,14 @@ void Pusher::push(){
         }
 
         metricsInMemory.clear();
+        RSIndex = 0;
         std::string error(curl_easy_strerror(res));
         throw std::runtime_error("CURL request failed: " + error);
     } else {
+        //      推送成功
         std::cout << "Data successfully pushed to VictoriaMetrics!" << std::endl;
         metricsInMemory.clear();
+        RSIndex = 0;
     }
 }
 
