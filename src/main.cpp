@@ -5,19 +5,29 @@
 #include<thread>
 #include<time.h>
 #include"../include/global.h"
+#include"../include/Config.h"
 #include<fstream>
 #include <cmath>
+#include <sstream>
+#include <unordered_map>
 
 int main(){
+
+    std::unordered_map<std::string, std::string> config;
+    try {
+        config = readConfig("config.txt");
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+    }
     //需要手动配置的参数
-    periodOfCollectMetrics = 1;
-    periodOfPushMetrices = 10;
-    exporterUrl = "http://localhost:9435/metrics";
-    vmUrl = "http://192.168.88.140:8428/api/v1/import/prometheus";
-    fileSaveMetricsName = "../bin/data.bin";
-    hostInfo = "192.168.88.139";
-    MAX_FILE_SIZE = 1024 * 1024 * 2;//最大文件大小：5MB
-    samplingRatio = 0.5;
+    periodOfCollectMetrics = std::stoi(config["periodOfCollectMetrics"]);
+    periodOfPushMetrices = std::stoi(config["periodOfPushMetrices"]);
+    exporterUrl = config["exporterUrl"];
+    vmUrl = config["vmUrl"];
+    fileSaveMetricsName = config["fileSaveMetricsName"];
+    hostInfo = config["hostInfo"];
+    MAX_FILE_SIZE = std::stoi(config["MAX_FILE_SIZE"]);//最大文件大小：5MB
+    samplingRatio = std::stod(config["samplingRatio"]);
     
     //不需要手动初始化的参数
     fileSaveMetricSize = 0;

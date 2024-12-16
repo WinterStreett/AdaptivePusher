@@ -116,10 +116,11 @@ void Collector::collect()
                 metricsInMemory[j] = buff;
         }
         RSIndex++;
-        std::cout<<"reservoirSize: "<< reservoirSize << " RSIndex: "<< RSIndex<<std::endl;
+        // std::cout<< buff <<std::endl;
+        // std::cout<<"reservoirSize: "<< reservoirSize << " RSIndex: "<< RSIndex<<std::endl;
         buff.clear();
         // std::cout << "Metrics fetched successfully:" << std::endl;
-        std::cout << metricsInMemory.size() << std::endl; // 输出数据
+        // std::cout << metricsInMemory.size() << std::endl; // 输出数据
     }
 }
 
