@@ -17,3 +17,4 @@ std::string hostInfo;
 int reservoirSize;
 int RSIndex;
 double samplingRatio;
+std::string interface;

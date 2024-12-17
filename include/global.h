@@ -19,3 +19,5 @@ extern std::string hostInfo;//标识数据来源的信息，注意不同数据�
 extern double samplingRatio;//Reservoir Sampling算法的取样百分比
 extern int reservoirSize;//Reservoir Sampling算法的水库大小
 extern int RSIndex;//Reservoir Sampling算法的数据流索引
+
+extern std::string interface;//主机网络接口名称

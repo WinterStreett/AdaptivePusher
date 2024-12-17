@@ -18,6 +18,7 @@ int main(){
         config = readConfig("config.txt");
     } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;
+        return 0;
     }
     //需要手动配置的参数
     periodOfCollectMetrics = std::stoi(config["periodOfCollectMetrics"]);
@@ -27,12 +28,12 @@ int main(){
     fileSaveMetricsName = config["fileSaveMetricsName"];
     hostInfo = config["hostInfo"];
     MAX_FILE_SIZE = std::stoi(config["MAX_FILE_SIZE"]);//最大文件大小：5MB
-    samplingRatio = std::stod(config["samplingRatio"]);
-    
+    reservoirSize = std::stoi(config["reservoirSize"]);
+    interface = config["interface"];
     //不需要手动初始化的参数
     fileSaveMetricSize = 0;
-    reservoirSize = static_cast<int>(std::round(
-    static_cast<double>(periodOfPushMetrices) / periodOfCollectMetrics * samplingRatio));
+    // reservoirSize = static_cast<int>(std::round(
+    // static_cast<double>(periodOfPushMetrices) / periodOfCollectMetrics * samplingRatio));
     RSIndex = 0;
 
     Collector* collector= new Collector(exporterUrl);
