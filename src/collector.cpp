@@ -5,8 +5,64 @@
 #include<map>
 #include"global.h"
 #include<iostream>
+#include<chrono>
+#include <regex>
+#include <ctime>
 
 std::map<std::string, CURL*> exporterUrls2CURL;
+
+//一些辅助函数
+std::string getUnixTimestamp() {
+    auto now = std::chrono::system_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch());
+    return std::to_string(duration.count());
+}
+
+//给数据加上自定义标签
+std::string addLabel(const std::string& original, const std::string& newLabelKey, const std::string& newLabelValue) {
+    // 找到标签部分的开始位置
+    size_t start = original.find('{');
+    size_t end = original.find('}', start);
+
+    // 如果找到了标签部分，插入新标签
+    if (start != std::string::npos && end != std::string::npos) {
+        std::string newLabel = newLabelKey + "=\"" + newLabelValue + "\"";
+        std::string updated = original;
+        updated.insert(end, "," + newLabel);
+        return updated;
+    }
+
+    // 如果没有标签部分，则在数据名后添加整个标签
+    size_t spacePos = original.find(' '); // 查找第一个空格
+    if (spacePos != std::string::npos) {
+        // 在空格前插入标签
+        return original.substr(0, spacePos) + "{" + newLabelKey + "=\"" + newLabelValue + "\"}" +
+               original.substr(spacePos);
+    }
+
+    // 如果没有空格，则假设原始数据只有名字
+    return original + "{" + newLabelKey + "=\"" + newLabelValue + "\"}";
+}
+
+
+std::string processMetrics(const std::string& rawMetrics) {
+    std::string result;
+    std::istringstream input(rawMetrics);
+    std::string line;
+    std::string timestamp = getUnixTimestamp();
+
+    while (std::getline(input, line)) {
+        if (line.empty() || line[0] == '#') {
+            // 忽略注释行和空行
+            // result.append(line).append("\n");
+            continue;
+        }
+        // line = addLabel(line,"source",hostInfo);
+        line.append(" ").append(timestamp);
+        result.append(addLabel(line,"source",hostInfo)).append("\n");
+    }
+    return result;
+}
 
 // 回调函数，用于将拉取到的数据写入 std::string
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* output)
@@ -45,6 +101,9 @@ int collect()
         {
             std::cout<<"拉取数据源："<<it->first<<"失败！"<<std::endl;
             return -1;
+        }
+        else{
+            metrics = processMetrics(metrics);
         }
     }
     return 0;

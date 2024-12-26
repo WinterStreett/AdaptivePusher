@@ -13,20 +13,28 @@ void handleSigint(int signal) {
 
 int main()
 {
+
+    exporterUrls.push_back("http://localhost:9435/metrics");//17886
+    // exporterUrls.push_back("http://localhost:9100/metrics");//61171
+
+    hostInfo = "192.168.88.139";
+    fileMaxSize = 1024 * 1024 * 10;//单文件大小10M
+    fileMaxNum = 10;//最多5个文件
+    filePath = "/home/winter/adaptive_pusher/data/";
+
     // 注册信号处理器
     signal(SIGINT, handleSigint);
 
     std::cout << "Running... Press Ctrl+C to terminate." << std::endl;
 
-    exporterUrls.push_back("http://localhost:9435/metrics");//17886
-    exporterUrls.push_back("http://localhost:9100/metrics");//61171
-
     initCollector(exporterUrls);
-    while(collect()==0)
+    while(true)
     {
-        // std::cout<<"拉取数据成功"<<std::endl;
-        std::cout<<metrics.size()<<std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(2));
+        if(collect() == 0)
+        {
+            std::cout<<metrics<<std::endl;
+        }
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
     return 0;
