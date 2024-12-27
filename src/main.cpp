@@ -39,16 +39,16 @@ int main()
             std::cout<<"save metrics!"<<std::endl;
         }
 
-        if(hasMetricsFiles())
-        {
+        // if(hasMetricsFiles())
+        // {
 
-            if(readMetricsFromFile(metrics) == 0)
-            {
-                // std::cout<<metrics<<std::endl;
-            }
-            removeCurrentMetricsFile();
-            metrics.clear();
-        }
+        //     if(readMetricsFromFile(metrics) == 0)
+        //     {
+        //         // std::cout<<metrics<<std::endl;
+        //     }
+        //     removeCurrentMetricsFile();
+        //     metrics.clear();
+        // }
         std::this_thread::sleep_for(std::chrono::seconds(2));
     }
 

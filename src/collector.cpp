@@ -12,6 +12,13 @@
 std::map<std::string, CURL*> exporterUrls2CURL;
 
 //一些辅助函数
+int busytimes = 0;
+int idletimes = 0;
+int prevbusytimes = 0;
+int previdletimes = 0;
+bool isBegin = true;
+
+
 std::string getUnixTimestamp() {
     auto now = std::chrono::system_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch());
@@ -44,6 +51,20 @@ std::string addLabel(const std::string& original, const std::string& newLabelKey
     return original + "{" + newLabelKey + "=\"" + newLabelValue + "\"}";
 }
 
+bool containsSubstring(const std::string& mainStr, const std::string& subStr) {
+    return mainStr.find(subStr) != std::string::npos;
+}
+
+int extractNumber(const std::string& input) {
+    size_t lastSpace = input.find_last_of(' '); // 找到最后一个空格
+    if (lastSpace == std::string::npos) {
+        throw std::runtime_error("No space found in the string.");
+    }
+
+    std::string numberPart = input.substr(lastSpace + 1); // 提取数字部分
+    return static_cast<int>(std::stod(numberPart)); // 转换为整数
+}
+
 
 std::string processMetrics(const std::string& rawMetrics) {
     std::string result;
@@ -57,6 +78,17 @@ std::string processMetrics(const std::string& rawMetrics) {
             // result.append(line).append("\n");
             continue;
         }
+        if(containsSubstring(line,R"(ebpf_exporter_ebpf_cpu_seconds_total{type="busy"})"))
+        {
+            prevbusytimes = busytimes;
+            busytimes = extractNumber(line);
+        }
+        if(containsSubstring(line,R"(ebpf_exporter_ebpf_cpu_seconds_total{type="idle"})"))
+        {
+            previdletimes = idletimes;
+            idletimes = extractNumber(line);
+        }
+
         // line = addLabel(line,"source",hostInfo);
         line.append(" ").append(timestamp);
         result.append(addLabel(line,"source",hostInfo)).append("\n");
@@ -104,6 +136,15 @@ int collect()
         }
         else{
             metrics = processMetrics(metrics);
+            if(!isBegin)
+            {
+                std::cout<<"busytimes:"<<busytimes<<std::endl;
+                std::cout<<"idletimes:"<<idletimes<<std::endl;
+                std::cout<<"cpu usage:"<<static_cast<double>(busytimes - prevbusytimes) / (busytimes - prevbusytimes + idletimes - previdletimes) <<std::endl;
+            }
+            else{
+                isBegin = false;
+            }
         }
     }
     return 0;
