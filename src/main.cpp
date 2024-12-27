@@ -41,9 +41,12 @@ int main()
 
         if(hasMetricsFiles())
         {
-            readMetricsFromFile(metrics);
+
+            if(readMetricsFromFile(metrics) == 0)
+            {
+                // std::cout<<metrics<<std::endl;
+            }
             removeCurrentMetricsFile();
-            // std::cout<<metrics<<std::endl;
             metrics.clear();
         }
         std::this_thread::sleep_for(std::chrono::seconds(2));
