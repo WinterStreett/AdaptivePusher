@@ -13,13 +13,10 @@ size_t getFileSize(const std::string& fileName) {
 
 int main()
 {
-    
-    std::string fileName = "/home/winter/AdaptivePusher/data/metrics0.txt";
-    try {
-        size_t fileSize = getFileSize(fileName);
-        std::cout << "File size: " << fileSize << " bytes" << std::endl;
-    } catch (const std::exception& e) {
-        std::cerr << e.what() << std::endl;
-    }
+    std::string networkInterface = "ens33";
+    std::string temp1 = "node_network_receive_bytes_total{device=\""+networkInterface+"\"}.*";
+
+    std::cout<<"node_cpu_seconds_total\\{cpu=\"(\\d+)\",mode=\"idle\"\\}.*"<<std::endl;
+    std::cout<<temp1<<std::endl;
     return 0;
 }

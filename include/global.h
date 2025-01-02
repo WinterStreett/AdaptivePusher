@@ -9,4 +9,6 @@ extern std::string hostInfo;//标识数据来源的信息，注意不同数据�
 extern int fileMaxSize;//单个文件的大小
 extern int fileMaxNum;//文件的最大数量
 extern std::string filePath;//文件路径
+extern std::string networkInterface;//网络接口
+extern int collectInterval;//采集间隔
 #endif // ADAPTIVE_PUSHER_GLOBAL_H

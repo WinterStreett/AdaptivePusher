@@ -16,14 +16,14 @@ void handleSigint(int signal) {
 int main()
 {
 
-    exporterUrls.push_back("http://localhost:9435/metrics");//17886
-    // exporterUrls.push_back("http://localhost:9100/metrics");//61171
+    // exporterUrls.push_back("http://localhost:9435/metrics");//17886
+    exporterUrls.push_back("http://localhost:9100/metrics");//61171
 
     hostInfo = "192.168.88.139";
     fileMaxSize = 1024 * 1024 * 1;//单文件大小10M
     fileMaxNum = 2;//最多5个文件
     filePath = "/home/winter/AdaptivePusher/data/";
-
+    collectInterval = 2;
     // 注册信号处理器
     signal(SIGINT, handleSigint);
 
@@ -49,7 +49,7 @@ int main()
         //     removeCurrentMetricsFile();
         //     metrics.clear();
         // }
-        std::this_thread::sleep_for(std::chrono::seconds(2));
+        std::this_thread::sleep_for(std::chrono::seconds(collectInterval));
     }
 
     return 0;
