@@ -3,6 +3,7 @@
 
 #include<string>
 #include<vector>
+
 extern std::string metrics;
 extern std::vector<std::string> exporterUrls;
 extern std::string hostInfo;//标识数据来源的信息，注意不同数据源不要同名

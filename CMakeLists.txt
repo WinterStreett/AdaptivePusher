@@ -26,3 +26,5 @@ enable_testing()
 
 # 添加测试
 add_test(NAME Test1 COMMAND test1)
+
+message(STATUS "Sources: ${SOURCES}")

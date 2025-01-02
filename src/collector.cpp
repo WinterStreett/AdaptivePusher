@@ -4,6 +4,7 @@
 #include<curl/curl.h>
 #include<map>
 #include"global.h"
+#include"proformance.h"
 #include<iostream>
 #include<chrono>
 #include <regex>
@@ -12,10 +13,11 @@
 std::map<std::string, CURL*> exporterUrls2CURL;
 
 //一些辅助函数和变量
-double totaltimes = 0;//cpu总时间
-double idletimes = 0;//cpu空闲时间
-double prevtotaltimes = 0;//上一次cpu总时间
-double previdletimes = 0;//上一次cpu空闲时间
+// double totaltimes = 0;//cpu总时间
+// double idletimes = 0;//cpu空闲时间
+// double prevtotaltimes = 0;//上一次cpu总时间
+// double previdletimes = 0;//上一次cpu空闲时间
+CpuUsage prevStats, currStats;//cpu使用情况
 
 double totalMemory = 0;//总内存
 double availableMemory = 0;//可用内存
@@ -87,11 +89,11 @@ double extractNumber(const std::string& input) {
     return std::stod(numberPart); // 转换为浮点数
 }
 
-//计算cpu使用率
-double get_cpu_usage()
-{
-    return 1.0 - (idletimes - previdletimes) / (totaltimes - prevtotaltimes);
-}
+// //计算cpu使用率
+// double get_cpu_usage()
+// {
+//     return 1.0 - (idletimes - previdletimes) / (totaltimes - prevtotaltimes);
+// }
 
 //计算内存使用率
 double get_memory_usage()
@@ -116,44 +118,47 @@ double get_network_transmit_bandwidth()
     return (networkTransmit - prevNetworkTransmit)/collectInterval;
 }
 
-void update_proformance_data(const std::string& line){
+void update_proformance_data(){
     //更新cpu相关变量，用于计算cpu使用率
-    if(std::regex_match(line, pattern_cpu_time))
-    {
-        double temp = extractNumber(line);
-        totaltimes += temp;
-        if(std::regex_match(line, pattern_idle_time))
-        {
-            idletimes += temp;
-        }
-    }
-    else if(std::regex_match(line, pattern_memory_total))
-    {
-        totalMemory = extractNumber(line);
-    }
-    else if(std::regex_match(line, pattern_memory_avail))
-    {
-        availableMemory = extractNumber(line);
-    }
-    else if(std::regex_match(line, pattern_disk_io))
-    {
-        diskIO = extractNumber(line);
-    }
-    else if(std::regex_match(line, pattern_network_receive))
-    {
-        prevNetworkReceive = networkReceive;
-        networkReceive = extractNumber(line);
-    }
-    else if(std::regex_match(line, pattern_network_transmit))
-    {
-        prevNetworkTransmit = networkTransmit;
-        networkTransmit = extractNumber(line);
-    }
-    else if(std::regex_match(line, pattern_network_receive))
-    {
-        prevNetworkReceive = networkReceive;
-        networkReceive = extractNumber(line);
-    }
+    prevStats = currStats;
+    currStats = getCpuStats();
+
+    // if(std::regex_match(line, pattern_cpu_time))
+    // {
+    //     double temp = extractNumber(line);
+    //     totaltimes += temp;
+    //     if(std::regex_match(line, pattern_idle_time))
+    //     {
+    //         idletimes += temp;
+    //     }
+    // }
+    // else if(std::regex_match(line, pattern_memory_total))
+    // {
+    //     totalMemory = extractNumber(line);
+    // }
+    // else if(std::regex_match(line, pattern_memory_avail))
+    // {
+    //     availableMemory = extractNumber(line);
+    // }
+    // else if(std::regex_match(line, pattern_disk_io))
+    // {
+    //     diskIO = extractNumber(line);
+    // }
+    // else if(std::regex_match(line, pattern_network_receive))
+    // {
+    //     prevNetworkReceive = networkReceive;
+    //     networkReceive = extractNumber(line);
+    // }
+    // else if(std::regex_match(line, pattern_network_transmit))
+    // {
+    //     prevNetworkTransmit = networkTransmit;
+    //     networkTransmit = extractNumber(line);
+    // }
+    // else if(std::regex_match(line, pattern_network_receive))
+    // {
+    //     prevNetworkReceive = networkReceive;
+    //     networkReceive = extractNumber(line);
+    // }
 }
 
 std::string processMetrics(const std::string& rawMetrics) {
@@ -162,18 +167,18 @@ std::string processMetrics(const std::string& rawMetrics) {
     std::string line;
     std::string timestamp = getUnixTimestamp();
 
-    prevtotaltimes = totaltimes;
-    previdletimes = idletimes;
-    totaltimes = 0;
-    idletimes = 0;
-
+    // prevtotaltimes = totaltimes;
+    // previdletimes = idletimes;
+    // totaltimes = 0;
+    // idletimes = 0;
+    update_proformance_data();
     while (std::getline(input, line)) {
         if (line.empty() || line[0] == '#') {
             // 忽略注释行和空行
             // result.append(line).append("\n");
             continue;
         }
-        update_proformance_data(line);
+
         line.append(" ").append(timestamp);
         result.append(addLabel(line,"source",hostInfo)).append("\n");
     }
@@ -222,11 +227,11 @@ int collect()
             metrics = processMetrics(metrics);
             if(!isBegin)
             {
-                std::cout<<"cpu使用: "<<get_cpu_usage()<<std::endl;
-                std::cout<<"内存使用率: "<<get_memory_usage()<<std::endl;
-                std::cout<<"磁盘IO使用率: "<<get_disk_io_usage()<<std::endl;
-                std::cout<<"网络接收带宽: "<<get_network_receive_bandwidth()<<std::endl;
-                std::cout<<"网络发送带宽: "<<get_network_transmit_bandwidth()<<std::endl;
+                std::cout<<"cpu使用率: "<<calculateCpuUsage(prevStats,currStats)<<std::endl;
+                // std::cout<<"内存使用率: "<<get_memory_usage()<<std::endl;
+                // std::cout<<"磁盘IO使用率: "<<get_disk_io_usage()<<std::endl;
+                // std::cout<<"网络接收带宽: "<<get_network_receive_bandwidth()<<std::endl;
+                // std::cout<<"网络发送带宽: "<<get_network_transmit_bandwidth()<<std::endl;
             }
             else{
                 isBegin = false;
