@@ -24,6 +24,7 @@ int main()
     fileMaxNum = 2;//最多5个文件
     filePath = "/home/winter/AdaptivePusher/data/";
     collectInterval = 2;
+    networkInterface = "ens33";
     // 注册信号处理器
     signal(SIGINT, handleSigint);
 

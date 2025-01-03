@@ -12,4 +12,6 @@ extern int fileMaxNum;//文件的最大数量
 extern std::string filePath;//文件路径
 extern std::string networkInterface;//网络接口
 extern int collectInterval;//采集间隔
+extern std::string networkInterface;//网络接口
+extern double extractNumber(const std::string& input);
 #endif // ADAPTIVE_PUSHER_GLOBAL_H
