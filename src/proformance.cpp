@@ -147,13 +147,13 @@ void updateNetworkStats() {
 }
 
 //计算网络带宽
-NetworkBandwidth calculateNetworkBandwidth(){
+double calculateNetworkUsage(){
     NetworkBandwidth networkBandwidth;//网络速率
     //接收带宽
     networkBandwidth.rxBps = (currNetworkStats.rxBytes - preNetworkStats.rxBytes)/collectInterval;//接收带宽
     //发送带宽
     networkBandwidth.txBps = (currNetworkStats.txBytes - preNetworkStats.txBytes)/collectInterval;//发送带宽
-    return networkBandwidth;
+    return static_cast<double>(networkBandwidth.rxBps + networkBandwidth.txBps) / maxNetworkThroughput * 100;
 }
 
 //计算磁盘IO使用率
@@ -188,4 +188,16 @@ void updateDiskIOStats()
 double calculateDiskIO()
 {
     return (currDiskIOSecond - preDiskIOSecond)/collectInterval;
+}
+
+void update_proformance_data(){
+    //更新cpu相关变量，用于计算cpu使用率
+    updateCpuStats();
+    updateMemoryStats();
+    updateNetworkStats();
+    updateDiskIOStats();
+}
+
+double calculateLoad(){
+    return (calculateCpuUsage() + calculateMemoryUsage() + calculateNetworkUsage() + calculateDiskIO())/4;
 }

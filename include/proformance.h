@@ -21,9 +21,13 @@ void updateCpuStats();
 double calculateMemoryUsage();
 void updateMemoryStats();
 //获取网络使用情况
-NetworkBandwidth calculateNetworkBandwidth();
+double calculateNetworkUsage();
 void updateNetworkStats();
 //获取磁盘IO使用情况
 void updateDiskIOStats();
 double calculateDiskIO();
+//更新性能数据
+void update_proformance_data();
+//计算负载
+double calculateLoad();
 #endif // ADAPTIVE_PUSHER_PROFORMANCE_H

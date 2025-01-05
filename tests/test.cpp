@@ -5,6 +5,7 @@
 #include"proformance.h"
 #include"file.h"
 #include <sstream>
+#include <cmath>
 size_t getFileSize(const std::string& fileName) {
     std::fstream file(fileName, std::ios::binary | std::ios::in | std::ios::ate); // 打开文件并将指针移到末尾
     if (!file.is_open()) {
@@ -37,8 +38,8 @@ double getDiskIOTime(const std::string& device) {
 
 int main()
 {
-    std::string device = "sda";
-    double ioTime = getDiskIOTime(device);
-    std::cout << "Disk IO Time (seconds) for " << device << ": " << ioTime << std::endl;
+    int maxN = 6;
+    double ratio = 0.7;
+    std::cout << 1 + std::ceil(static_cast<double>(maxN-1)*(90-60)/40) << std::endl;
     return 0;
 }

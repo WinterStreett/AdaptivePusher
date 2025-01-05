@@ -53,13 +53,7 @@ bool containsSubstring(const std::string& mainStr, const std::string& subStr) {
 }
 
 
-void update_proformance_data(const std::string& line){
-    //更新cpu相关变量，用于计算cpu使用率
-    updateCpuStats();
-    updateMemoryStats();
-    updateNetworkStats();
-    updateDiskIOStats();
-}
+
 
 std::string processMetrics(const std::string& rawMetrics) {
     std::string result;
@@ -67,7 +61,6 @@ std::string processMetrics(const std::string& rawMetrics) {
     std::string line;
     std::string timestamp = getUnixTimestamp();
 
-    update_proformance_data(line);
     while (std::getline(input, line)) {
         if (line.empty() || line[0] == '#') {
             // 忽略注释行和空行
@@ -109,6 +102,7 @@ void initCollector(std::vector<std::string>& urls)
 //拉取数据
 int collect()
 {
+    update_proformance_data();
     for(auto it = exporterUrls2CURL.begin(); it != exporterUrls2CURL.end(); ++it)
     {
         CURLcode res = curl_easy_perform(it->second);
@@ -120,18 +114,6 @@ int collect()
         }
         else{
             metrics = processMetrics(metrics);
-            // if(!isBegin)
-            // {
-            //     std::cout<<"cpu使用率: "<<calculateCpuUsage()<<std::endl;
-            //     std::cout<<"内存使用率: "<<calculateMemoryUsage()<<std::endl;
-            //     NetworkBandwidth networkBandwidth = calculateNetworkBandwidth();
-            //     std::cout<<"磁盘IO使用率: "<<calculateDiskIO()<<std::endl;
-            //     std::cout<<"网络接收带宽: "<<networkBandwidth.rxBps<<std::endl;
-            //     std::cout<<"网络发送带宽: "<<networkBandwidth.txBps<<std::endl;
-            // }
-            // else{
-            //     isBegin = false;
-            // }
         }
     }
     return 0;
