@@ -6,6 +6,7 @@
 #include"file.h"
 #include <sstream>
 #include <cmath>
+#include<regex>
 size_t getFileSize(const std::string& fileName) {
     std::fstream file(fileName, std::ios::binary | std::ios::in | std::ios::ate); // 打开文件并将指针移到末尾
     if (!file.is_open()) {
@@ -36,10 +37,24 @@ double getDiskIOTime(const std::string& device) {
     return 0.0;
 }
 
+int checkStringFormat(const std::string& str) {
+    // 正则表达式匹配三个由空格分隔的字符串
+    std::istringstream stream(str);
+    std::string tmp;
+    int count = 0;
+    while(std::getline(stream, tmp, ' ')){
+        count++;
+    }
+    if(count != 3){
+        return -1;
+    }
+    return 0;
+}
+
 int main()
 {
-    int maxN = 6;
-    double ratio = 0.7;
-    std::cout << 1 + std::ceil(static_cast<double>(maxN-1)*(90-60)/40) << std::endl;
+    std::string str = "0 192.168.88.139";
+    if(checkStringFormat(str) == 0)
+        std::cout<<"matched"<<std::endl;
     return 0;
 }
