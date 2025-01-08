@@ -7,10 +7,13 @@
 #include"pusher.h"
 #include <cmath>
 #include"proformance.h"
+#include"data_reduction.h"
 
 void handleSigint(int signal) {
     std::cout << "Caught signal " << signal << ", cleaning up..." << std::endl;
     // 执行清理操作，例如关闭文件、释放资源等
+    // push(deleteDataPattrnFromServer());
+
     clearCollector();
     clearPusher();
     clearFile();
@@ -33,7 +36,8 @@ int main()
 {
     // exporterUrls.push_back("http://localhost:9435/metrics");//17886
     exporterUrls.push_back("http://localhost:9100/metrics");//61171
-    serverUrl = "http://192.168.88.140:8428/api/v1/import/prometheus";
+    // serverUrl = "http://192.168.88.140:8428/api/v1/import/prometheus";
+    serverUrl = "http://192.168.88.140:9900/metrics";
     hostInfo = "192.168.88.139";
     fileMaxSize = 1024 * 1024 * 1;//单文件大小10M
     fileMaxNum = 10;//最多5个文件
@@ -57,21 +61,12 @@ int main()
         std::this_thread::sleep_for(std::chrono::seconds(collectInterval));
         periodCounter++;
 
-        // std::cout<<"cpu使用率: "<<calculateCpuUsage()<<std::endl;
-        // std::cout<<"内存使用率: "<<calculateMemoryUsage()<<std::endl;
-        // // NetworkBandwidth networkBandwidth = calculateNetworkBandwidth();
-        // std::cout<<"磁盘IO使用率: "<<calculateDiskIO()<<std::endl;
-        // // std::cout<<"网络接收带宽: "<<networkBandwidth.rxBps<<std::endl;
-        // // std::cout<<"网络发送带宽: "<<networkBandwidth.txBps<<std::endl;
-        // std::cout<<"网络吞吐量："<<calculateNetworkUsage()<<std::endl;
-        // std::cout<<"负载："<<calculateLoad()<<std::endl;
-
         if(collect() != 0)
         {
             metrics.clear();
             continue;
         }
-        
+
         //判断当前是否处于推送周期
         if(periodCounter < pushPeriod){
             //未到推送周期
@@ -95,10 +90,12 @@ int main()
         // std::cout<<"推送周期："<<pushPeriod<<std::endl;
         if(push(metrics) != 0)//推送失败则将数据保存到文件，并进行下一次收集
         {
-            saveMetrics2File(metrics);
+            if(hasDataPatternSend)//如果数据模式尚未推送给服务器，那么也不会将历史数据保存到文件
+                saveMetrics2File(metrics);
             metrics.clear();
             continue;
         }   
+        hasDataPatternSend = true;
         //存在临时文件，循环读取每个临时文件并推送
         while(hasMetricsFiles())
         {

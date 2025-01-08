@@ -6,21 +6,15 @@
 #include"global.h"
 #include"proformance.h"
 #include<iostream>
-#include<chrono>
 #include <regex>
 #include <ctime>
+#include"data_reduction.h"
 
 std::map<std::string, CURL*> exporterUrls2CURL;
 
 //一些辅助函数和变量
 
 bool isBegin = true;
-
-std::string getUnixTimestamp() {
-    auto now = std::chrono::system_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch());
-    return std::to_string(duration.count());
-}
 
 //给数据加上自定义标签
 std::string addLabel(const std::string& original, const std::string& newLabelKey, const std::string& newLabelValue) {
@@ -53,13 +47,13 @@ bool containsSubstring(const std::string& mainStr, const std::string& subStr) {
 }
 
 
-
-
 std::string processMetrics(const std::string& rawMetrics) {
     std::string result;
     std::istringstream input(rawMetrics);
     std::string line;
-    std::string timestamp = getUnixTimestamp();
+    // std::string timestamp = getUnixTimestamp();
+    std::istringstream lineStream;
+    std::string metrics_name_part, metrics_value_part;
 
     while (std::getline(input, line)) {
         if (line.empty() || line[0] == '#') {
@@ -67,7 +61,12 @@ std::string processMetrics(const std::string& rawMetrics) {
             continue;
         }
 
-        line.append(" ").append(timestamp);
+        lineStream.clear();
+        lineStream.str(line);
+        lineStream >> metrics_name_part >> metrics_value_part;
+        metricsValueHistory.insert(std::make_pair(metrics_name_part, metrics_value_part));
+
+        // line.append(" ").append(timestamp);
         result.append(addLabel(line,"source",hostInfo)).append("\n");
     }
     return result;
@@ -113,7 +112,7 @@ int collect()
             return -1;
         }
         else{
-            metrics = processMetrics(metrics);
+            metrics = generatePushContent(metrics);
         }
     }
     return 0;
