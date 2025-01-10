@@ -116,3 +116,23 @@ void clearFile()
         file.close();
     }
 }
+
+void saveStringToFile(const std::string& filename, const std::string& content) {
+    // 打开文件，使用 std::ofstream 写入模式
+    std::ofstream outFile(filename, std::ios::out | std::ios::app);
+    
+    // 检查文件是否成功打开
+    if (!outFile) {
+        std::cerr << "Error: Could not open file " << filename << " for writing." << std::endl;
+        return;
+    }
+
+    // 写入内容到文件
+    outFile << content;
+
+    // 关闭文件
+    outFile.close();
+
+    // 确认保存成功
+    // std::cout << "Content successfully saved to " << filename << std::endl;
+}

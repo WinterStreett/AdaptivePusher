@@ -3,6 +3,7 @@
 #include<chrono>
 #include<string>
 #include<sstream>
+#include"file.h"
 
 bool hasDataPatternSend = false;
 std::map<std::string, std::string> metricsValueHistory;
@@ -29,7 +30,7 @@ std::string generatePushContent(const std::string& rawMetrics)//根据指标数�
     std::string line;
     std::string timestamp = getUnixTimestamp();
     std::istringstream lineStream;
-    std::string metrics_name_part, metrics_value_part;
+    std::string metrics_name_part, metrics_value_part, tmp;
     // 尚未向服务器告知边缘收集的数据模式
     if(!hasDataPatternSend)
     {
@@ -47,6 +48,13 @@ std::string generatePushContent(const std::string& rawMetrics)//根据指标数�
             lineStream.clear();
             lineStream.str(line);
             lineStream >> metrics_name_part >> metrics_value_part;
+            //有的指标名中有空格，形如metrics_name{label1="ab cd"} 1
+            //处理这种情况需要判断从流中读取两次后，后面是否还有剩余字符
+            while(lineStream >> tmp)
+            {
+                metrics_name_part = metrics_name_part + " " + metrics_value_part;
+                metrics_value_part = tmp;
+            }
             metricsValueHistory.insert(std::make_pair(metrics_name_part, metrics_value_part));
             result.append(line).append("\n");
         }

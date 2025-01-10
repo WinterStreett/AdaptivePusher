@@ -53,8 +53,18 @@ int checkStringFormat(const std::string& str) {
 
 int main()
 {
-    std::string str = "0 192.168.88.139";
-    if(checkStringFormat(str) == 0)
-        std::cout<<"matched"<<std::endl;
+    std::string str = "1 2 3 4";
+    std::string tmp1, tmp2, tmp3;
+    std::istringstream lineStream;
+    lineStream.str(str);
+    lineStream >> tmp1;
+    lineStream >> tmp2;
+    while(lineStream >> tmp3)
+    {
+        tmp1 = tmp1 + " " + tmp2;
+        tmp2 = tmp3;
+    }
+    std::cout<<"tmp1: "<<tmp1<<std::endl;
+    std::cout<<"tmp2: "<<tmp2<<std::endl;
     return 0;
 }
