@@ -67,8 +67,6 @@ int main()
             continue;
         }
 
-        saveStringToFile("data,txt",metrics);
-
         //判断当前是否处于推送周期
         if(periodCounter < pushPeriod){
             //未到推送周期
@@ -89,7 +87,7 @@ int main()
         {
             updatePushPeriod();
         }
-        pushPeriod = 5;
+        // pushPeriod = 5;
         // std::cout<<"推送周期："<<pushPeriod<<std::endl;
         if(push(metrics) != 0)//推送失败则将数据保存到文件，并进行下一次收集
         {
