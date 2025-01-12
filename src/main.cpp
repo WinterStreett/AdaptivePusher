@@ -12,8 +12,9 @@
 void handleSigint(int signal) {
     std::cout << "Caught signal " << signal << ", cleaning up..." << std::endl;
     // 执行清理操作，例如关闭文件、释放资源等
-    // push(deleteDataPattrnFromServer());
-
+    std::string deleteMessage = deleteDataPattrnFromServer();
+    pushLZ4(compressLZ4(deleteMessage), deleteMessage.size());
+    std::cout<<"删除数据模式"<<std::endl;
     clearCollector();
     clearPusher();
     clearFile();
@@ -55,7 +56,8 @@ int main()
     std::cout << "Running... Press Ctrl+C to terminate." << std::endl;
     bool isFirstPeriod = true;
     initCollector(exporterUrls);
-    initPusher(serverUrl);
+    // initPusher(serverUrl);
+    initLZ4Pusher(serverUrl);
     while(true)
     {
         std::this_thread::sleep_for(std::chrono::seconds(collectInterval));
@@ -87,9 +89,9 @@ int main()
         {
             updatePushPeriod();
         }
-        // pushPeriod = 5;
+        pushPeriod = 5;
         // std::cout<<"推送周期："<<pushPeriod<<std::endl;
-        if(push(metrics) != 0)//推送失败则将数据保存到文件，并进行下一次收集
+        if(pushLZ4(compressLZ4(metrics), metrics.size()) != 0)//推送失败则将数据保存到文件，并进行下一次收集
         {
             if(hasDataPatternSend)//如果数据模式尚未推送给服务器，那么也不会将历史数据保存到文件
                 saveMetrics2File(metrics);
@@ -102,7 +104,8 @@ int main()
         {
             if(readMetricsFromFile(metrics) == 0)
             {
-                push(metrics);//不判断是否推送成功
+                // push(metrics);//不判断是否推送成功
+                pushLZ4(compressLZ4(metrics), metrics.size());
             }
             removeCurrentMetricsFile();//就算推送失败默认该文件已经没有存储价值
                                         //将空间留给更新的数据
