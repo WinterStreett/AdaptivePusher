@@ -7,6 +7,8 @@
 #include <sstream>
 #include <cmath>
 #include<regex>
+#include <lz4.h>
+
 size_t getFileSize(const std::string& fileName) {
     std::fstream file(fileName, std::ios::binary | std::ios::in | std::ios::ate); // 打开文件并将指针移到末尾
     if (!file.is_open()) {
@@ -51,20 +53,25 @@ int checkStringFormat(const std::string& str) {
     return 0;
 }
 
+// 压缩函数
+std::vector<char> compressLZ4(const std::string &data) {
+    int maxCompressedSize = LZ4_compressBound(data.size());
+    std::vector<char> compressed(maxCompressedSize);
+
+    int compressedSize = LZ4_compress_default(
+        data.data(), compressed.data(), data.size(), maxCompressedSize);
+
+    compressed.resize(compressedSize);
+    return compressed;
+}
+
+
 int main()
 {
-    std::string str = "1 2 3 4";
-    std::string tmp1, tmp2, tmp3;
-    std::istringstream lineStream;
-    lineStream.str(str);
-    lineStream >> tmp1;
-    lineStream >> tmp2;
-    while(lineStream >> tmp3)
-    {
-        tmp1 = tmp1 + " " + tmp2;
-        tmp2 = tmp3;
-    }
-    std::cout<<"tmp1: "<<tmp1<<std::endl;
-    std::cout<<"tmp2: "<<tmp2<<std::endl;
+    std::string data = "This is a string to be compressed using LZ4.";
+    std::cout << "string size: " << data.capacity() << std::endl;
+    // 压缩
+    auto compressed = compressLZ4(data);
+    std::cout << "Compressed size: " << compressed.size() << std::endl;
     return 0;
 }

@@ -7,6 +7,7 @@
 #include"proformance.h"
 #include"global.h"
 #include <regex>
+#include<vector>
 
 CpuUsage preCpuStats, currCpuStats;//cpu使用情况
 size_t totalMem, availableMem;//mem使用情况

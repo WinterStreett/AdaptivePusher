@@ -4,6 +4,7 @@
 #include<string>
 #include<sstream>
 #include"file.h"
+#include<lz4.h>
 
 bool hasDataPatternSend = false;
 std::map<std::string, std::string> metricsValueHistory;
@@ -21,6 +22,18 @@ std::string deleteDataPattrnFromServer()//删除远程服务器上的数据模�
           .append(hostInfo).append(" ")
           .append(getUnixTimestamp()).append("\n");
     return result;
+}
+
+// 压缩函数
+std::vector<char> compressLZ4(const std::string &data) {
+    int maxCompressedSize = LZ4_compressBound(data.size());
+    std::vector<char> compressed(maxCompressedSize);
+
+    int compressedSize = LZ4_compress_default(
+        data.data(), compressed.data(), data.size(), maxCompressedSize);
+
+    compressed.resize(compressedSize);
+    return compressed;
 }
 
 std::string generatePushContent(const std::string& rawMetrics)//根据指标数据生成要被推送的最终内容
