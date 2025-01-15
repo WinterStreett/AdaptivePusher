@@ -27,8 +27,9 @@ add_executable(test1 ${TEST_SOURCES})
 
 # 链接 libcurl 库
 find_package(CURL REQUIRED)
-target_link_libraries(main CURL::libcurl lz4)
-target_link_libraries(test1 CURL::libcurl lz4)
+find_package(yaml-cpp REQUIRED)
+target_link_libraries(main CURL::libcurl lz4 yaml-cpp)
+target_link_libraries(test1 CURL::libcurl lz4 yaml-cpp)
 
 # 启用测试
 enable_testing()

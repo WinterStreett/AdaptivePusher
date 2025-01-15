@@ -1,0 +1,24 @@
+# 所有exporter的url
+exporter_urls:
+  - http://localhost:9100/metrics
+
+# 远程服务器的url
+server_url: http://192.168.88.140:9900/metrics
+# 本地主机的标识字段
+host_info: 192.168.88.139
+# 本地临时文件的最大大小
+file_max_size: 5242880 # 5MB
+# 本地临时文件的最大数量
+file_max_num: 20
+# 本地临时文件的存储路径
+store_file_path: /home/winter/AdaptivePusherData/
+# AdaptivePusher收集指标数据的时间间隔
+collect_interval: 2
+# AdaptivePusher推送指标数据的最大时间间隔 = collect_interval * max_push_period
+max_push_period: 50
+# 主机网络接口名
+network_interface: ens33
+# 主机网络接口的最大吞吐量
+max_network_throughput: 125000000   # 1000Mbps
+# 性能阈值，超过这个阈值AdaptivePusher将不会推送数据
+performance_threshold: 60   # 60% 

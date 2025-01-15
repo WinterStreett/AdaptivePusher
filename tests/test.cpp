@@ -8,6 +8,7 @@
 #include <cmath>
 #include<regex>
 #include <lz4.h>
+#include <yaml-cpp/yaml.h>
 
 size_t getFileSize(const std::string& fileName) {
     std::fstream file(fileName, std::ios::binary | std::ios::in | std::ios::ate); // 打开文件并将指针移到末尾
@@ -68,10 +69,8 @@ std::vector<char> compressLZ4(const std::string &data) {
 
 int main()
 {
-    std::string data = "This is a string to be compressed using LZ4.";
-    std::cout << "string size: " << data.capacity() << std::endl;
-    // 压缩
-    auto compressed = compressLZ4(data);
-    std::cout << "Compressed size: " << compressed.size() << std::endl;
+    YAML::Node config = YAML::LoadFile("config.yaml");
+    int test = config["test"].as<int>();
+    std::cout<<test<<std::endl;
     return 0;
 }

@@ -8,6 +8,7 @@
 #include <cmath>
 #include"proformance.h"
 #include"data_reduction.h"
+#include"config.h"
 
 void handleSigint(int signal) {
     std::cout << "Caught signal " << signal << ", cleaning up..." << std::endl;
@@ -35,26 +36,31 @@ void updatePushPeriod(){
 
 int main()
 {
-    // exporterUrls.push_back("http://localhost:9435/metrics");//17886
-    exporterUrls.push_back("http://localhost:9100/metrics");//61171
-    // serverUrl = "http://192.168.88.140:8428/api/v1/import/prometheus";
-    serverUrl = "http://192.168.88.140:9900/metrics";
-    hostInfo = "192.168.88.139";
-    fileMaxSize = 1024 * 1024 * 1;//单文件大小10M
-    fileMaxNum = 10;//最多5个文件
-    filePath = "/home/winter/AdaptivePusher/data/";
-    collectInterval = 2;//单位：秒
-    pushPeriod = 1;//单位：采集间隔数
-    periodCounter = 0;//单位：采集间隔数
-    maxPushPeriod = 50;//单位：采集间隔数
-    networkInterface = "ens33";
-    maxNetworkThroughput = 125 * 1000 * 1000;//1 Gbps = 125 MB/s
-    performanceThreshold = 20;
+    // // exporterUrls.push_back("http://localhost:9435/metrics");//17886
+    // exporterUrls.push_back("http://localhost:9100/metrics");//61171
+    // // serverUrl = "http://192.168.88.140:8428/api/v1/import/prometheus";
+    // serverUrl = "http://192.168.88.140:9900/metrics";
+    // hostInfo = "192.168.88.139";
+    // fileMaxSize = 1024 * 1024 * 1;//单文件大小10M
+    // fileMaxNum = 10;//最多5个文件
+    // filePath = "/home/winter/AdaptivePusher/data/";
+    // collectInterval = 2;//单位：秒
+    // pushPeriod = 1;//单位：采集间隔数
+    
+    // maxPushPeriod = 50;//单位：采集间隔数
+    // networkInterface = "ens33";
+    // maxNetworkThroughput = 125 * 1000 * 1000;//1 Gbps = 125 MB/s
+    // performanceThreshold = 20;
     // 注册信号处理器
+
+    //读取配置文件
+    readConfig("/home/winter/AdaptivePusher/config/config.yaml");
     signal(SIGINT, handleSigint);
 
     std::cout << "Running... Press Ctrl+C to terminate." << std::endl;
     bool isFirstPeriod = true;
+    periodCounter = 0;//单位：采集间隔数
+    pushPeriod = 1;//单位：采集间隔数
     initCollector(exporterUrls);
     // initPusher(serverUrl);
     initLZ4Pusher(serverUrl);
@@ -89,7 +95,7 @@ int main()
         {
             updatePushPeriod();
         }
-        pushPeriod = 5;
+        // pushPeriod = 5;
         // std::cout<<"推送周期："<<pushPeriod<<std::endl;
         if(pushLZ4(compressLZ4(metrics), metrics.size()) != 0)//推送失败则将数据保存到文件，并进行下一次收集
         {
