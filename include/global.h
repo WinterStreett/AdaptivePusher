@@ -5,6 +5,7 @@
 #include<vector>
 
 extern std::string metrics;
+// extern std::string additionalMetrics;//在推送数据中添加的新出现的额外指标
 extern std::vector<std::string> exporterUrls;
 extern std::string serverUrl;//远程服务器ip
 extern std::string hostInfo;//标识数据来源的信息，注意不同数据源不要同名

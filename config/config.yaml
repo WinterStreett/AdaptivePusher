@@ -1,6 +1,8 @@
 # 所有exporter的url
 exporter_urls:
   - http://localhost:9100/metrics
+  - http://localhost:9435/metrics
+
 
 # 远程服务器的url
 server_url: http://192.168.88.140:9900/metrics

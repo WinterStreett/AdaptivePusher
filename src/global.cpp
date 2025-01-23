@@ -2,6 +2,7 @@
 #include<iostream>
 
 std::string metrics;
+// std::string additionalMetrics;
 std::vector<std::string> exporterUrls;
 std::string serverUrl;//远程服务器ip
 std::string hostInfo;

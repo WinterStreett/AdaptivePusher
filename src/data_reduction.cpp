@@ -68,7 +68,12 @@ std::string generatePushContent(const std::string& rawMetrics)//根据指标数�
                 metrics_name_part = metrics_name_part + " " + metrics_value_part;
                 metrics_value_part = tmp;
             }
-            metricsValueHistory.insert(std::make_pair(metrics_name_part, metrics_value_part));
+
+            // 如果历史数据中没有这个指标
+            if(metricsValueHistory.count((metrics_name_part)) < 1)
+            {
+                metricsValueHistory.insert(std::make_pair(metrics_name_part, metrics_value_part));
+            }
             result.append(line).append("\n");
         }
         return result;
@@ -87,10 +92,22 @@ std::string generatePushContent(const std::string& rawMetrics)//根据指标数�
         lineStream.clear();
         lineStream.str(line);
         lineStream >> metrics_name_part >> metrics_value_part;
+        //有的指标名中有空格，形如metrics_name{label1="ab cd"} 1
+        //处理这种情况需要判断从流中读取两次后，后面是否还有剩余字符
+        while(lineStream >> tmp)
+        {
+            metrics_name_part = metrics_name_part + " " + metrics_value_part;
+            metrics_value_part = tmp;
+        }
         // 如果历史数据中有这个指标
         if(metricsValueHistory.count((metrics_name_part)) > 0)
         {
             metricsValueHistory[metrics_name_part] = metrics_value_part;
+        }
+        else//如果没有这个数据，那么将其添加到additionalMetrics中
+        {
+            hasDataPatternSend = false;
+            return generatePushContent(rawMetrics); 
         }
     }
     //根据新的metricsValueHistory生成推送内容

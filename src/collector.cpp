@@ -111,10 +111,8 @@ int collect()
             std::cout<<"拉取数据源："<<it->first<<"失败！"<<std::endl;
             return -1;
         }
-        else{
-            metrics = generatePushContent(metrics);
-        }
     }
+    metrics = generatePushContent(metrics);
     return 0;
 }
 
